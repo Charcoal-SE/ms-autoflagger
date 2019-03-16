@@ -151,9 +151,25 @@ def cast_flags(event):
 def completed_auth(event):
     client_id = os.environ['CLIENT_ID']
     client_secret = os.environ['CLIENT_SECRET']
-    code = event["queryStringParameters"]["code"]
-    if "state" in event["queryStringParameters"]:
-        state = event["queryStringParameters"]["state"]
+    qsp = event["queryStringParameters"]
+    if "error" in qsp:
+        if "REDIRECT_URI" in os.environ:
+            return {
+                "isBase64Encoded": False,
+                "statusCode": 302,
+                "headers": {"Location":os.environ['REDIRECT_URI'] + "?error="+qsp["error"]+"&error_description="+qsp["errerror_description"]},
+                "body": "SE OAuth Failed! Redirecting you..."
+            }
+        else:
+            return {
+                "isBase64Encoded": False,
+                "statusCode": 200,
+                "headers": {"Content-Type":"text/plain"},
+                "body": "SE OAuth Failed :(\n" + r.text
+            }
+    code = qsp["code"]
+    if "state" in qsp:
+        state = qsp["state"]
     else:
         state = ""
     ctx = event["requestContext"]
