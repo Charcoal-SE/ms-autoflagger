@@ -157,7 +157,7 @@ def completed_auth(event):
             return {
                 "isBase64Encoded": False,
                 "statusCode": 302,
-                "headers": {"Location":os.environ['REDIRECT_URI'] + "?error="+qsp["error"]+"&error_description="+qsp["errerror_description"]},
+                "headers": {"Location":os.environ['REDIRECT_URI'] + "?error="+qsp["error"]+"&error_description="+qsp["error_description"]},
                 "body": "SE OAuth Failed! Redirecting you..."
             }
         else:
