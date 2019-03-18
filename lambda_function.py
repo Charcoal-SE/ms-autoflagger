@@ -22,6 +22,8 @@ def lambda_handler(event, context):
         return flag_options(event)
     elif event["resource"] == "/load_tokens":
         return load_tokens(event)
+    elif event["resource"] == "/invalidate_tokens":
+        return invalidate_tokens(event)
     # elif event["resource"] == "/verify_account_id":
     #     return account_ids(event)
     else:
@@ -67,6 +69,25 @@ def load_tokens(event):
         "statusCode": 200,
         "headers": {"Content-Type":"text/plain"},
         "body": "All tokens loaded!"
+    }
+
+def invalidate_tokens(event):
+    params = event["queryStringParameters"]
+    acct_id = params["account_id"]
+    api_key = os.environ['API_KEY']
+    i = client.get_item(TableName=os.environ['TABLE_NAME'],
+                    Key={"account_id": {"N":acct_id}})
+    token = i['Item']['access_token']['S']
+    query_string = {
+        'key': api_key
+    }
+    uri = "https://api.stackexchange.com/2.2/access-tokens/"+token+"/invalidate"
+    r = requests.get(uri, data=query_string)
+    return {
+        "isBase64Encoded": False,
+        "statusCode": 200,
+        "headers": {},
+        "body": r.text
     }
 
 def flag_options(event):
