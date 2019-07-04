@@ -72,7 +72,7 @@ def load_tokens(event):
     }
 
 def invalidate_tokens(event):
-    params = event["queryStringParameters"]
+    params = json.loads(event["body"])
     acct_id = params["account_id"]
     api_key = os.environ['API_KEY']
     i = client.get_item(TableName=os.environ['TABLE_NAME'],
