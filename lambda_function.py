@@ -76,7 +76,7 @@ def invalidate_tokens(event):
     acct_id = params["account_id"]
     api_key = os.environ['API_KEY']
     i = client.get_item(TableName=os.environ['TABLE_NAME'],
-                    Key={"account_id": {"N":acct_id}})
+                    Key={"account_id": {"N":str(acct_id)}})
     token = i['Item']['access_token']['S']
     query_string = {
         'key': api_key
