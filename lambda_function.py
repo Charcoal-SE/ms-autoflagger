@@ -17,13 +17,13 @@ def lambda_handler(event, context):
     elif event["resource"] == "/auth/confirm":
         return confirm_auth(event)
     elif event["resource"] == "/autoflag":
-        return cast_flags(event)
+        return flags_add_with_api_version("2.2", event)
     elif event["resource"] == "/autoflag/options":
-        return flag_options(event)
-    elif event["resource"] == "/retract":
-        return retract_flags(event)
-    elif event["resource"] == "/retract/options":
-        return retract_options(event)
+        return flags_options_with_api_version("2.2", event)
+    elif event["resource"] == "/retract" or event["resource"] == "/2.3/flags/add":
+        return flags_add_with_api_version("2.3", event)
+    elif event["resource"] == "/retract/options" or event["resource"] == "/2.3/flags/options":
+        return flags_options_with_api_version("2.3", event)
     elif event["resource"] == "/load_tokens":
         return load_tokens(event)
     elif event["resource"] == "/invalidate_tokens":
@@ -94,12 +94,6 @@ def invalidate_tokens(event):
         "body": r.text
     }
 
-def flag_options(event):
-    return flags_options_with_api_version("2.2", event)
-
-def retract_options(event):
-    return flags_options_with_api_version("2.3", event)
-
 def flags_options_with_api_version(api_version, event):
     params = event["queryStringParameters"]
     account_id = params["account_id"]
@@ -135,12 +129,6 @@ def flags_options_with_api_version(api_version, event):
             "headers": {},
             "body": json.dumps({'message': "Invalid post type "+params["post_type"]+". Expected 'question' or 'answer'"})
         }
-
-def cast_flags(event):
-    return flags_add_with_api_version("2.2", event)
-
-def retract_flags(event):
-    return flags_add_with_api_version("2.3", event)
 
 def flags_add_with_api_version(api_version, event):
     params = event["queryStringParameters"]
