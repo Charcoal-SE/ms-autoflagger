@@ -20,6 +20,10 @@ def lambda_handler(event, context):
         return cast_flags(event)
     elif event["resource"] == "/autoflag/options":
         return flag_options(event)
+    elif event["resource"] == "/retract":
+        return retract_flags(event)
+    elif event["resource"] == "/retract/options":
+        return retract_options(event)
     elif event["resource"] == "/load_tokens":
         return load_tokens(event)
     elif event["resource"] == "/invalidate_tokens":
@@ -91,6 +95,12 @@ def invalidate_tokens(event):
     }
 
 def flag_options(event):
+    return flags_options_with_api_version("2.2", event)
+
+def retract_options(event):
+    return flags_options_with_api_version("2.3", event)
+
+def flags_options_with_api_version(api_version, event):
     params = event["queryStringParameters"]
     account_id = params["account_id"]
     api_key = os.environ['API_KEY']
@@ -110,7 +120,7 @@ def flag_options(event):
             'key': api_key,
             'access_token': token
         }
-        uri = "https://api.stackexchange.com/2.2/"+params["post_type"]+"s/"+params["post_id"]+"/flags/options"
+        uri = "https://api.stackexchange.com/"+api_version+"/"+params["post_type"]+"s/"+params["post_id"]+"/flags/options"
         r = requests.get(uri, data=query_string)
         return {
             "isBase64Encoded": False,
@@ -127,6 +137,12 @@ def flag_options(event):
         }
 
 def cast_flags(event):
+    return flags_add_with_api_version("2.2", event)
+
+def retract_flags(event):
+    return flags_add_with_api_version("2.3", event)
+
+def flags_add_with_api_version(api_version, event):
     params = event["queryStringParameters"]
     account_id = params["account_id"]
     api_key = os.environ['API_KEY']
@@ -153,7 +169,7 @@ def cast_flags(event):
             'comment': comment,
             'preview': 'false'
         }
-        uri = "https://api.stackexchange.com/2.2/"+params["post_type"]+"s/"+params["post_id"]+"/flags/add"
+        uri = "https://api.stackexchange.com/"+api_version+"/"+params["post_type"]+"s/"+params["post_id"]+"/flags/add"
         r = requests.post(uri, data=query_string)
         return {
             "isBase64Encoded": False,
